@@ -1,0 +1,44 @@
+namespace SoftwareTeamXiangQi
+{
+   
+    class Board
+    {
+        int row;
+        int coloumn;
+        int status;
+        //string status;
+
+        public Board()
+        {
+            row = 10;
+            coloumn = 9;
+            status = 0;
+        }
+    }
+    
+    class Chess{
+        int row;
+        int column;
+        int color;
+        int  typeChess;
+        public Chess(int row, int column, int color,int type){
+            this.row = row;
+            this.column = column;
+            this.color = color;
+            this.typeChess = type;
+        }
+    }
+
+    class King : Chess{
+        public King(int row, int column , int color ) : base(row ,column, color, 0){ // 0 == typeChess.King
+
+        }
+
+    }
+
+    
+
+    public enum color{red,black};
+    public enum typeChess{King,Guard,Elephant,Horse,Rook,Cannon,Soilder};
+
+}

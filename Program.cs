@@ -1,4 +1,6 @@
 ﻿using System;
+// using System.Collections;
+// using System.Data;
 namespace SoftwareTeamXiangQi
 {
     //Try and try
@@ -6,7 +8,8 @@ namespace SoftwareTeamXiangQi
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");                 
+            Console.WriteLine("Hello World!");    
+                          
         }
     }
 }
