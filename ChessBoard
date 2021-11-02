@@ -81,6 +81,7 @@ namespace SoftwareTeamXiangQi
 
     
 
+    public enum status{not_chess,red_chess,black_chess};
     public enum color{red,black};
     public enum typeChess{King,Guard,Elephant,Horse,Rook,Cannon,Soilder};
 
