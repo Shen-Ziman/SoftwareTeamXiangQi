@@ -37,6 +37,49 @@ namespace SoftwareTeamXiangQi
     }
 
     
+    class Guard : Chess{
+        public Guard(int row, int column , int color ) : base(row ,column, color, 1) { // 1 == typeChess.Guard
+
+        }
+
+    }
+
+     class Elephant : Chess{
+        public Elephant(int row, int column , int color ) : base(row ,column, color, 2) { // 2 == typeChess.Elephant
+
+        }
+
+    }
+
+     class Horse : Chess{
+        public Horse(int row, int column , int color ) : base(row ,column, color, 3) { // 3 == typeChess.Horse
+
+        }
+
+    }
+
+     class Rook : Chess{
+        public Rook(int row, int column , int color ) : base(row ,column, color, 4) { // 4 == typeChess.Rook
+
+        }
+
+    }
+
+     class Cannon : Chess{
+        public Cannon(int row, int column , int color ) : base(row ,column, color, 5) { // 5 == typeChess.Cannon
+
+        }
+
+    }
+
+     class Soilder : Chess{
+        public Soilder(int row, int column , int color ) : base(row ,column, color, 6) { // 6 == typeChess.Solider
+
+        }
+
+    }
+
+    
 
     public enum color{red,black};
     public enum typeChess{King,Guard,Elephant,Horse,Rook,Cannon,Soilder};
