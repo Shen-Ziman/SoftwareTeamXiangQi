@@ -1,22 +1,15 @@
 using System;
 namespace SoftwareTeamXiangQi{
-  
     public class Board{
-        public Chess[,] chesses;
-
-        public Chess white;
-        
-        
+        public Chess[,] chesses;             
         public Board(){
             chesses = new Chess[10,9];
-
             //初始化
             for(int row = 0; row < 10; row++){
                 for(int col = 0; col < 9 ; col++){
-                    chesses[row,col] = new No_chess(row,col,this);
+                   chesses[row,col] = null;
                 }
             }
-
 
             //红方
             chesses[0,0] = new Rook(0,0,Color.red,Type.Rook,this);
@@ -60,7 +53,7 @@ namespace SoftwareTeamXiangQi{
             if(turn == Turn.red){
                 turn = Turn.black;
             }
-            else
+            else // 由start和black转换到red 
                 turn = Turn.red;
 
             return turn;       
@@ -76,10 +69,7 @@ namespace SoftwareTeamXiangQi{
         public Color color;
         public Type type;
         public string Print;
-    
-
-        public (int col, int row) position;
-
+ 
         public Chess(int row, int col, Color color, Type type,string Print,Board board){
             this.row = row;
             this.col = col;
@@ -87,22 +77,6 @@ namespace SoftwareTeamXiangQi{
             this.type = type;
             this.Print = Print;
             this.board = board;
-        }
-
-        public Color GetColor(){
-            return this.color;
-        }
-
-        public void SetColor(Color color){
-            this.color = color;
-        }
-
-        public  Type GetType(){
-            return this.type;
-        }
-
-        public void SetType(Type type){
-            this.type = type;
         }
 
         public void SetRow(int row){
@@ -113,204 +87,151 @@ namespace SoftwareTeamXiangQi{
             this.col = col;
         }
 
-        
-        public string GetPrint(){
-            return this.Print;
-        }
         public void MoveChess(int start_row, int start_col ,int destination_row, int destination_col){
-
-           // Chess load = new No_chess(start_row,start_col,this.board);
-            Chess load =  this.board.chesses[destination_row,destination_col];
-            
-            load.SetColor(Color.no_color);
-            load.SetType(Type.no_chess);
-
             this.SetRow(destination_row);
-            this.SetCol(destination_col);          
-
-
-
+            this.SetCol(destination_col);
             this.board.chesses[destination_row,destination_col] = this;
-            this.board.chesses[start_row,start_col] = load;
+            this.board.chesses[start_row,start_col] = null;
         }
-
 
         public abstract bool CheckValidMove(int destinationColumn, int destinationRow);
-    }
-
-    public class No_chess : Chess{
-        public No_chess(int row,int col,Board board) : base(row,col,Color.no_color,Type.no_chess," ",board){}
-
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){           
-            
-            return true;
-                            
-        }
-    }       
+    } 
 
    public class Soldier : Chess {
-
         public Soldier(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"兵",board){}
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){   
+        public override bool CheckValidMove(int destinationRow, int destinationColumn){   
+            bool other_side = false;
+            valid = false;
 
-            if( board.chesses[this.row,this.col].GetColor() == Color.red){ //红兵
-                if(this.row < 5){ // 在红方地盘 【自己】
-                    if((this.row == destinationRow-1) && (this.col == destinationColumn))
+            if(this.row < 5){ //红方地盘
+                if(this.color == Color.black)  //黑棋
+                other_side = true;
+            }
+            else{               //黑方地盘
+                if(this.color == Color.red) 
+                other_side = true;
+            }
+            if(Math.Abs(this.row - destinationRow) + Math.Abs(this.col -destinationColumn) == 1){  // 只走一格
+                if(this.row == destinationRow){
+                    if(other_side)
                         valid = true;
-                    else{
-                        valid = false; 
-                        Console.WriteLine("You just can move forward.");
-                    }
                 }
-                else{       // 在黑方地盘 【敌方】
-                    if((this.row == destinationRow-1) && (this.col == destinationColumn)) //向前
+                else if(this.row > destinationRow){
+                    if(this.color == Color.black)
                         valid = true;
-                    else{
-                        if((this.row == destinationRow)){    // 左右
-                            if(this.col == destinationColumn+1) 
-                                valid = true;
-                            else if(this.col == destinationColumn-1)
-                                valid = true;
-                            else
-                                valid = false;
-                        }
-                        else
-                            valid = false;
-                    }
-                }             
-            }//红兵的end}
+                }
+                else{
+                    if(this.color == Color.red)
+                        valid = true;
+                }
 
-            if( board.chesses[this.row,this.col].GetColor() == Color.black){//黑兵
-                //Console.WriteLine(player);
-                if(this.row >= 5){// 在黑方地盘 【自己】
-                    if((this.row == destinationRow+1) && (this.col == destinationColumn) )
-                        valid = true;
-                    else
-                        valid = false;
-                }
-                
-                else{// 在红方地盘 【敌方】
-                    if((this.row == destinationRow+1) && (this.col == destinationColumn)) //向前
-                    valid = true;
-                    else{
-                        if((this.row == destinationRow)){    // 左右
-                            if(this.col == destinationColumn+1) 
-                            valid = true;
-                            else if(this.col == destinationColumn-1)
-                            valid = true;
-                            else
-                            valid = false;
-                        }
-                        else
-                        valid = false;
-                    }
-                }   
-             }//黑兵的end}
-
-            return valid;
-            //return true;                           
+                if(valid == false){
+                    if(other_side) 
+                        Console.WriteLine("You just can move forward or turn left or turn right.");
+                    else
+                        Console.WriteLine("You just can move forward.");
+                }
+            }
+            else{
+            valid = false; 
+            Console.WriteLine("You just can move one space.");
+            }
+            return valid;                         
         }
     }
     public class Cannon : Chess {
-
         public Cannon(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"炮",board){}
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){ 
-            if(this.row== destinationRow ||this.col == destinationColumn){//同一直线
+        public override bool CheckValidMove(int destinationRow, int destinationColumn){  
+            if(this.row == destinationRow || this.col == destinationColumn){//同一直线
                 int countChess = 0;
-                if(this.row != destinationRow && this.col == destinationColumn){//同一直线下竖走
-                    for(int Row = Math.Min(this.row,destinationRow)+1; Row < Math.Max(this.row,destinationRow); Row++){
-                        if(board.chesses[Row,this.col].GetType()==Type.no_chess){countChess = countChess+0;}//无棋加0
-                        else{countChess++;}//有棋加1
-                    }
-                    
-                }
-
-                if(this.row == destinationRow && this.col != destinationColumn){//同一直线下竖走
-                    for(int Col = Math.Min(this.col,destinationColumn)+1; Col < Math.Max(this.row,destinationRow); Col++){
-                        if(board.chesses[this.row,Col].GetType()==Type.no_chess){countChess = countChess+0;}//无棋加0
-                        else{countChess++;}//有棋加1
+                if(this.row != destinationRow ){         //同一直线下竖走
+                    int RowMin = Math.Min(this.row,destinationRow);
+                    int RowMax = Math.Max(this.row,destinationRow);
+                    for(int Row = RowMin; Row <= RowMax; Row++){
+                        if(board.chesses[Row,this.col] != null)
+                            countChess++;          //有棋加1
                     }
                 }
 
-                if(countChess == 0){   //两者中间无棋
-                        if(board.chesses[destinationRow,destinationColumn].GetType()==Type.no_chess) //终点无棋 => 直走
-                            valid = true;
-                        else{         // 终点有棋 => 但是路上无棋 => 不可以跳吃
-                            valid = false;
-                            Console.WriteLine("There is a chess in the destination.");
-                        }
+                if(this.col != destinationColumn){          //同一直线下竖走
+                    int ColMin = Math.Min(this.col,destinationColumn);
+                    int ColMax = Math.Max(this.col,destinationColumn);
+                    for(int Col = ColMin; Col <= ColMax; Col++){
+                        if(board.chesses[this.row,Col] != null)
+                            countChess++;       //有棋加1
                     }
-                else if(countChess == 1){ // 路上有一棋
-                        if((board.chesses[destinationRow,destinationColumn].GetColor() != board.chesses[this.row,this.col].GetColor())
-                            && board.chesses[destinationRow,destinationColumn].GetType()!=Type.no_chess){
-                            valid = true; 
-                        }
-                        else{
-                            valid = false;
-                            Console.WriteLine("There more than one chesses between this two chesses.");
-                        }
+                }
+
+                if(countChess == 1){        //一路无棋
+                    valid = true;
+                }
+                else if(countChess == 3 && board.chesses[destinationRow,destinationColumn] != null){ // 路上有一棋 终点也有一棋
+                        valid = true; 
+                }
+                else{
+                    valid = false;
+                    Console.WriteLine("Your cannon is stuck.");
                 }
             }
             else{
                 valid = false;
-                Console.WriteLine("The cannon only can move straight or sideways");
+                Console.WriteLine("The cannon only can move straight or sideways.");
             }
-
-
-            return valid;                            
+            return valid;                            
         }
     }
 
     public class Rook : Chess {
 
         public Rook(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"车",board){}
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){     
-            if(this.row != destinationRow && this.col != destinationColumn){//位置不在同一条线
-                Console.WriteLine("Your Rook is unable to move.");
-                valid = false;
-            }
-            else{//同一条线 
-                int control = 0;
-                int countChess = 0;//计数；
-                do{
-                    if(this.row == destinationRow){//横走                   
-                    int ymin =  Math.Min(destinationColumn,this.col);//最小量加变量，测试路上有无棋子阻碍
-                        for(control = 1; control < Math.Abs(this.col - destinationColumn); control++){
-                            if(board.chesses[this.row,ymin+control].GetType() != Type.no_chess ){
-                                countChess++;
-                            }
-                        }     
-                    }
-                    else if(this.col == destinationColumn){//竖走
-                        int xmin =  Math.Min(destinationRow,this.row);
-                        // Console.WriteLine(xmin);
-                        for(control = 1; control < Math.Abs(this.row - destinationRow); control++){
-                            if(board.chesses[xmin+control,this.col].GetType() != Type.no_chess ){
-                                countChess++; 
-                            }
-                        }     
-                    }
-                }while((this.row == destinationRow && control == Math.Abs(destinationColumn-this.col)-1)||(this.col == destinationColumn && control == Math.Abs(destinationRow-this.row)-1));
+         public override bool CheckValidMove(int destinationRow, int destinationColumn){     
+            if(this.row != destinationRow && this.col != destinationColumn){//位置不在同一条线
+                Console.WriteLine("Your Rook is unable to move.");
+                valid = false;
+            }
+            else{//同一条线 
+                int countChess = 0;//计数；
+                    if(this.row == destinationRow){//横走                 
+                        int ColMin =  Math.Min(destinationColumn,this.col);//最小量加变量，测试路上有无棋子阻碍
+                        int ColMax =  Math.Max(destinationColumn,this.col);
+                        for(int Col = ColMin+1; Col < ColMax; Col++){
+                            if(board.chesses[this.row,Col] != null ){
+                                countChess++;
+                            }
+                        }     
+                    }
+                    else if(this.col == destinationColumn){//竖走
+                        int RowMin =  Math.Min(destinationRow,this.row);
+                        int RowMax =  Math.Max(destinationRow,this.row);
+                        for(int Row = RowMin+1; Row < RowMax ; Row++){
+                            if(board.chesses[Row,this.col] != null ){
+                                countChess++; 
+                            }
+                        }     
+                    }
 
-                if( countChess == 0 ){
-                    //一路上没有棋
-                    valid = true; 
-                }
-                else{//其他情况，不能走
-                    Console.WriteLine("Your Rook is stuck.");
-                    valid = false;
-                }
-            }
-            return valid;                            
-        }
+                if( countChess == 0 ){//一路上没有棋
+                    valid = true; 
+                }
+                else{//其他情况，不能走
+                    Console.WriteLine("Your Rook is stuck.");
+                    valid = false;
+                }
+            }
+            return valid;                          
+        }
     }
 
     public class Horse : Chess {
 
         public Horse(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"马",board){}
         public override bool CheckValidMove(int destinationRow, int destinationColumn){  
-            if(Math.Abs(destinationRow-this.row)==1 && Math.Abs(destinationColumn-this.col)==2){ //横着走
-                if( board.chesses[this.row,(this.col+destinationColumn)/2].GetType() != Type.no_chess){ //有棋
+
+            int rowAbs = Math.Abs(destinationRow-this.row);
+            int colAbs = Math.Abs(destinationColumn-this.col);
+            
+            if( rowAbs == 1 && colAbs == 2){ //横着走
+                if( board.chesses[this.row,(this.col+destinationColumn)/2] != null){ //有棋
                     valid = false;
                     Console.WriteLine("Your Horse is stuck.");
                 }   
@@ -318,8 +239,8 @@ namespace SoftwareTeamXiangQi{
                     valid = true;                            
                 }
             }
-            else if(Math.Abs(destinationColumn-this.col)==1 && Math.Abs(destinationRow-this.row)==2){ //竖着走
-                if( board.chesses[(this.row+destinationRow)/2,this.col].GetType() != Type.no_chess){ //有棋
+            else if(colAbs==1 && rowAbs == 2){ //竖着走
+                if( board.chesses[(this.row+destinationRow)/2,this.col] != null){ //有棋
                     valid = false;
                     Console.WriteLine("Your Horse is stuck.");      
                 }
@@ -329,8 +250,8 @@ namespace SoftwareTeamXiangQi{
             } 
             else{
                 valid = false;
-                Console.WriteLine("You should follow the rule.");                   
-            }//}//红黑马end
+                Console.WriteLine("You should walk as a 日.");                   
+            }//红黑马end
             return valid;                            
         }
     }
@@ -338,17 +259,19 @@ namespace SoftwareTeamXiangQi{
     public class Elephant : Chess {
 
         public Elephant(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"象",board){}
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){   
-            if(System.Math.Abs(this.row-destinationRow)==2 && System.Math.Abs(this.col-destinationColumn)==2){//符合两格
-                if((destinationRow>4 && board.chesses[row,col].GetColor() == Color.red) //红象过河
-                || (destinationRow<5 && board.chesses[row,col].GetColor() == Color.black)){//黑象过河
+        public override bool CheckValidMove(int destinationRow, int destinationColumn){  
+            int rowAbs = Math.Abs(destinationRow-this.row);
+            int colAbs = Math.Abs(destinationColumn-this.col); 
+            if(rowAbs == 2 && colAbs == 2){//符合两格
+                if((destinationRow>4 && board.chesses[row,col].color == Color.red) //红象过河
+                  || (destinationRow<5 && board.chesses[row,col].color == Color.black)){//黑象过河
                     valid = false;
-                    Console.WriteLine("Your elephant is stuck.");
+                    Console.WriteLine("Your elephant can't cross the river.");
                 }
                 else{
-                    if(System.Math.Abs(this.row-destinationRow)==2 && System.Math.Abs(this.col-destinationColumn)==2){//符合两格
+                    if(rowAbs == 2 && colAbs == 2){//符合两格
                                 
-                        if(board.chesses[(this.row+destinationRow)/2,(this.col+destinationColumn)/2].GetType() != Type.no_chess){//绊脚
+                        if(board.chesses[(this.row+destinationRow)/2,(this.col+destinationColumn)/2] != null){//绊脚
                                 valid = false;
                                 Console.WriteLine("Your elephant is stuck.");
                         }
@@ -365,135 +288,93 @@ namespace SoftwareTeamXiangQi{
     }
 
     public class Guard : Chess {
-
         public Guard(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"士",board){}
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){ 
-            if((destinationColumn > 2) && (destinationColumn < 6)){
-                if(( (destinationRow >= 0) && (destinationRow < 3) && board.chesses[this.row,this.col].GetColor() == Color.red )    //红方米格里
-                   || ( (destinationRow > 6) && (destinationRow <= 9) && board.chesses[this.row,this.col].GetColor() == Color.black)){ //黑方米格里
-                    
-                    if((this.row == destinationRow) || (this.col == destinationColumn)){ //不是斜着
+             public override bool CheckValidMove(int destinationRow, int destinationColumn){
+                int rowAbs = Math.Abs(this.row - destinationRow);
+                int colAbs = Math.Abs(this.col - destinationColumn);
+
+                if((destinationColumn > 2) && (destinationColumn < 6)){    // Col 限制 【3，5】
+                    if(this.row != destinationRow && this.col != destinationColumn){
+                        if( rowAbs + colAbs == 2){
+                            valid = true;
+                        }
+                        else{
+                            valid = false;
+                            Console.WriteLine("Sorry, you only can walk diagonally one space.");
+                        }
+                    }
+                    else{
                         valid = false;
                         Console.WriteLine("Sorry, you have to walk diagonally.");
                     }
-                    else if((System.Math.Abs(this.row - destinationRow) == 2) || (System.Math.Abs(this.col - destinationColumn) == 2)){ //士走两格
-                        valid = false;
-                        Console.WriteLine("Sorry, you only can walk diagonally one space.");
+                }
+                else{
+                    valid = false;
+                    Console.WriteLine("Sorry, you only can move in the 米 space.");
+                }          
+                return valid;                              
+            }
+    }
+
+    public class King : Chess {
+
+        public King(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"将",board){}
+        public override bool CheckValidMove(int destinationRow, int destinationColumn){
+            bool king_flag  = false;  
+            if(board.chesses[destinationRow,destinationColumn] == null){ //目标为空，不进入将吃将
+                king_flag = false;
+            }
+            else{ 
+                if(board.chesses[destinationRow,destinationColumn].type == Type.King) //目标为将，进入将吃将
+                    king_flag = true;
+                else //目标不为将，不进入将吃将
+                    king_flag = false;
+            }
+
+            if(king_flag){  // 将吃将（目标为将）
+                if(this.col == destinationColumn){//两将同一列
+                    int RowMin = Math.Min(this.row,destinationRow);
+                    int RowMax = Math.Max(this.row,destinationRow);
+                    for(int Row = RowMin+1; Row < RowMax ; Row++){
+                        if(board.chesses[Row,this.col] == null) //路上无棋
+                            valid = true;
+                        else
+                            valid = false;
+                        if( valid == false){// 有棋退出
+                            Console.WriteLine("Sorry, you only can not eat the King.There is at least one chess between two Kings");
+                            break;
+                        }                                   
                     }
-                    else
+                }
+                else{//两将不同列
+                    valid = false;
+                    Console.WriteLine("Sorry, you can not eat the King. You are not in same coloumn.");
+                }
+            }
+            else{ //在米格里
+            int AbsRowAndCol =  Math.Abs(this.row - destinationRow) + Math.Abs(this.col - destinationColumn);
+                if(destinationColumn > 2 && destinationColumn < 6){    // 米格 Col ： [3,5]
+                    if( AbsRowAndCol == 1 )
                         valid = true;
+                    else{
+                        valid = false;
+                        Console.WriteLine("Sorry, you only can walk one space.");
+                    }
                 }
                 else{
                     valid = false;
                     Console.WriteLine("Sorry, you only can move in the 米 space.");
                 }
             }
-            else{
-                    valid = false;
-                    Console.WriteLine("Sorry, you only can move in the 米 space.");
-            }
-
             return valid;                            
-        }
+        } 
     }
 
-    public class King : Chess {
+    public enum Color{red, black}
 
-        public King(int row,int col,Color color,Type type,Board board) : base(row,col,color,type,"将",board){}
-        public override bool CheckValidMove(int destinationRow, int destinationColumn){              
-                if(board.chesses[this.row,this.col].GetColor() == Color.red){   //红将        
-                    if(board.chesses[destinationRow,destinationColumn].GetColor() == Color.black 
-                      && board.chesses[destinationRow,destinationColumn].GetType() == Type.King){
-                        if(this.col == destinationColumn){//两将同一列
-                            for(int theRow = this.row+1; theRow < destinationRow ; theRow++){
-                                if(board.chesses[theRow,this.col].GetType() == Type.no_chess) //路上无棋
-                                    valid = true;
-                                else
-                                    valid = false;
-                                if( valid == false){// 有棋退出
-                                    Console.WriteLine("Sorry, you only can not eat the black_King.There is at least one chess between two Kings");
-                                    break;
-                                }                                     
-                            }
-                        }
-                        else{//两将不同列
-                            valid = false;
-                            Console.WriteLine("Sorry, you can not eat the black_King. You are not in same coloumn.");
-                        }
-                    }
-                    else{
-                        if((destinationRow >= 0) && (destinationRow < 3) && (destinationColumn > 2) && (destinationColumn < 6)){ //米格里
-                            if((this.row == destinationRow) || (this.col == destinationColumn)){
-                                if( (System.Math.Abs(this.row - destinationRow) + System.Math.Abs(this.col - destinationColumn) ) == 1 )
-                                    valid = true;
-                                else{
-                                    valid = false;
-                                    Console.WriteLine("Sorry, you only can walk one space.");
-                                }
-                            }
-                            else{
-                                valid = false;
-                                Console.WriteLine("Sorry, you cannot go diagonal.");
-                            }
-                        }
-                        else{
-                            valid = false;
-                            Console.WriteLine("Sorry, you only can move in the 米 space.");
-                        }
-                    }
-                }//红将end
+    public enum Type{King, Guard, Elephant, Horse, Rook, Cannon, Soilder}
 
-                 if((board.chesses[this.row,this.col].GetColor() == Color.black)){   //黑将
-                    if(board.chesses[destinationRow,destinationColumn].GetColor() == Color.red 
-                      && board.chesses[destinationRow,destinationColumn].GetType() == Type.King){
-                        if(this.col == destinationColumn){
-                            for(int theRow = this.row-1; theRow > destinationRow ; theRow--){
-                                if(board.chesses[theRow,this.col].GetType() == Type.no_chess) //路上无棋
-                                    valid = true;
-                                else
-                                    valid = false;
-                                if( valid == false){// 有棋退出
-                                    Console.WriteLine("Sorry, you only can not eat the red_King.There is at least one chess between two Kings");
-                                    break;
-                                }                                     
-                            }
-                        }
-                        else{
-                            valid = false;
-                            Console.WriteLine("Sorry, you can not eat the black_King. You are not in same coloumn.");
-                        }
-                    }
-                    else{
-                        if((destinationRow > 6) && (destinationRow <= 9) && (destinationColumn > 2) && (destinationColumn < 6)){ //米格里
-                            if((this.row == destinationRow) || (this.col == destinationColumn)){
-                                if( (System.Math.Abs(this.row - destinationRow) + System.Math.Abs(this.col - destinationColumn) ) == 1 )
-                                    valid = true;
-                                else{
-                                    valid = false;
-                                    Console.WriteLine("Sorry, you only can walk one space.");
-                                }
-                            }
-                            else{
-                                valid = false;
-                                Console.WriteLine("Sorry, you cannot go diagonal.");
-                            }
-                        }
-                        else{
-                            valid = false;
-                            Console.WriteLine("Sorry, you only can move in the 米 space.");
-                        }
-                    }
-                }//黑将end
-
-            return valid;                            
-        }
-    }
-
-    public enum Color{ red, black, no_color}
-
-    public enum Type{ King , Guard , Elephant , Horse , Rook , Cannon , Soilder , no_chess}
-
-    public enum Turn{red,black,start};
-    public enum Fail{red,black,no};
+    public enum Turn{red, black, start}
+    public enum Fail{red, black, no}
 
 }
